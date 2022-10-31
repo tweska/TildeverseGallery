@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+
+# Name:         update
+# Author:       ~tweska
+# Description:  Program used to find duplicate hashes in the cache and ignore
+#               them.
+
+
+import os
+import json
+
+import click
+
+
+@click.command()
+@click.argument('path', type=str)
+@click.option('-u', '--update', is_flag=True, default=False)
+def find_duplicates(path, update):
+    # Open cache file.
+    try:
+        with open(f'{path}/cache.json', 'r') as file:
+            cache = json.load(file)
+    except Exception:
+        exit(-1)
+
+    # Find duplicate hashes.
+    hashes, duplicates = [], []
+    for hash in [u['hash'] for u in cache['users']]:
+        if len(hash) != 32 or hash in duplicates:
+            continue
+        elif hash in hashes:
+            duplicates.append(hash)
+            print(hash)
+        else:
+            hashes.append(hash)
+
+    # Early return if 'update' flag is not set.
+    if not update:
+        exit(0)
+
+    for user in cache['users']:
+        if 'hash' in user.keys() and user['hash'] in duplicates:
+            user['default'] = True
+
+            # Remove screenshot.
+            img_path = f"{path}/screenshots/{user['username']}.png"
+            if os.path.exists(img_path):
+                os.remove(img_path)
+            if os.path.exists(img_path[:-4] + '-thumbnail' + img_path[-4:]):
+                os.remove(img_path[:-4] + '-thumbnail' + img_path[-4:])
+
+    # Write back to the cache file.
+    cache['default'] = list(set(duplicates + cache['default']))
+    try:
+        with open(f'{path}/cache.json', 'w') as file:
+            json.dump(cache, file, indent=4)
+    except Exception:
+        exit(-1)
+
+
+if __name__ == '__main__':
+    find_duplicates()
