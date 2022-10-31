@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+
+# Name:         screenshot
+# Author:       ~tweska
+# Description:  Simple program that takes a screenshot of a webpage using
+#               pyppeteer.
+
+
+import asyncio
+from sys import stderr
+import hashlib
+
+import click
+import pyppeteer
+from PIL import Image
+
+
+async def __screenshot(url, path, windowsize, resizesize, keeporiginal,
+                       fullpage, printhash):
+    ww, wh = [int(n) for n in windowsize.split(',')]
+
+    try:
+        browser = await pyppeteer.launch(
+            headless=True,
+            ignoreHTTPErrors=True,
+            defaultViewport={'width': ww, 'height': wh},
+            args=[
+                '--hide-scrollbars',
+                '--ignore-gpu-blacklist',
+                '--use-gl',
+            ],
+        )
+        page = await browser.newPage()
+    except Exception:
+        print("Could not start the browser!", file=stderr)
+        return -1
+
+    try:
+        await page.goto(url)
+
+        if printhash:
+            content = await page.content()
+            print(hashlib.md5(content.encode('utf-8')).hexdigest())
+
+        await page.screenshot({
+            'path': path,
+            'fullPage': fullpage,
+        })
+
+        await browser.close()
+    except Exception:
+        print("Could not take a screenshot!", file=stderr)
+        return -1
+
+    if not resizesize:
+        return 0
+    rw, rh = [int(n) for n in resizesize.split(',')]
+
+    thumbpath = path
+    if keeporiginal:
+        thumbpath = path.split('.')[0] + '-thumbnail.' + path.split('.')[-1]
+
+    try:
+        img = Image.open(path)
+        img = img.resize((rw, rh))
+        img.save(thumbpath)
+    except Exception:
+        print("Could not shrink screenshot!", file=stderr)
+        return -1
+
+    return 0
+
+
+@click.command()
+@click.argument('url', type=str)
+@click.option('-p', '--path', default='screenshot.png', type=str)
+@click.option('-w', '--windowsize', default='800,600', type=str)
+@click.option('-r', '--resizesize', default=None, type=str)
+@click.option('-k', '--keeporiginal', is_flag=True, default=False)
+@click.option('-f', '--fullpage', is_flag=True, default=False)
+@click.option('-h', '--printhash', is_flag=True, default=False)
+def screenshot(url, path, windowsize, resizesize, keeporiginal, fullpage,
+               printhash):
+    status = asyncio.get_event_loop().run_until_complete(
+        __screenshot(url, path, windowsize, resizesize, keeporiginal, fullpage,
+                     printhash)
+    )
+    exit(status)
+
+
+if __name__ == '__main__':
+    screenshot()
