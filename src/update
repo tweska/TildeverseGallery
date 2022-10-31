@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+
+# Name:         update
+# Author:       ~tweska
+# Description:  Program used to update the gallery.
+
+
+import os
+from sys import stderr
+import subprocess
+import time
+import json
+
+import click
+
+
+SCRIPT_TIMESTAMPS = 'remote/timestamps.sh'
+
+
+def create_dir(path):
+    if os.path.isfile(path):
+        print(f"'{path}' is a file!", file=stderr)
+        exit(-1)
+    if not os.path.isdir(path):
+        os.makedirs(path)
+
+
+def get_users(host):
+    # Read the bash program from the file.
+    path = os.path.join(os.path.dirname(__file__), SCRIPT_TIMESTAMPS)
+    script = open(path, 'r').read()
+
+    # Execute the program in a remote shell.
+    reply = subprocess.run(
+        ['ssh', host, script],
+        capture_output=True,
+        encoding='UTF-8',
+    ).stdout
+
+    # Convert the output into a list of dictionaries.
+    return [
+        {'username': u, 'timestamp': int(t)} for (t, u) in [
+            striped_line.split(' ') for striped_line in [
+                line for line in reply.strip().split('\n')
+            ]
+        ]
+    ]
+
+
+def merge_users(cached_users, new_users):
+    for new_user in new_users:
+        # Find the user in the cache file.
+        cached_user = next((u for u in cached_users
+                            if u['username'] == new_user['username']), None)
+
+        # Skip merging if user is new.
+        if not cached_user:
+            continue
+
+        # Merge cached and new user entry.
+        for key in cached_user.keys():
+            if key in ['username', 'timestamp']:
+                continue
+            new_user[key] = cached_user[key]
+
+    return new_users
+
+
+def take_screenshot(url, path):
+    # Spawn a new process to take the screenshot and obtain a hash.
+    program = os.path.join(os.path.dirname(__file__), 'screenshot')
+    process = subprocess.run(
+        [program, url, '-p', path, '-r', '240,180', '-k', '-h'],
+        capture_output=True,
+        encoding='UTF-8',
+    )
+    return (process.returncode == 0, process.stdout.strip())
+
+
+def update_outdated(users, prev_update, default_hashes, base_url, out_path):
+    for user in users:
+        # Skip unchanged page.
+        if user['timestamp'] < prev_update:
+            continue
+
+        print(f"Updating {user['username']} ...", file=stderr)
+
+        # Take a (new) screenshot.
+        url = f"{base_url}/~{user['username']}/"
+        path = f"{out_path}/screenshots/{user['username']}.png"
+        success, hash = take_screenshot(url, path)
+
+        # Save obtained data.
+        user['hash'] = hash
+        user['default'] = hash in default_hashes
+        user['error'] = not success
+
+        # Early return if not a default page.
+        if not user['default']:
+            continue
+
+        # Remove screenshot of default page.
+        if os.path.exists(path):
+            os.remove(path)
+        if os.path.exists(path[:-4] + '-thumbnail' + path[-4:]):
+            os.remove(path[:-4] + '-thumbnail' + path[-4:])
+
+
+@click.command()
+@click.argument('host', type=str)
+@click.argument('base_url', type=str)
+@click.argument('out_path', type=str)
+def update(host, base_url, out_path):
+    # Get the current timestamp.
+    timestamp = int(time.time())
+
+    # Create output directories.
+    create_dir(out_path)
+    create_dir(f'{out_path}/screenshots')
+
+    # Open cache file.
+    try:
+        with open(f'{out_path}/cache.json', 'r') as file:
+            cache = json.load(file)
+    except Exception:
+        cache = {
+            'timestamp': 0,
+            'default': [],
+            'users': []
+        }
+
+    # Get users & timestamps from remote server.
+    users = sorted(get_users(host), key=lambda u: u['timestamp'], reverse=True)
+
+    # Merge with cached data.
+    users = merge_users(cache['users'], users)
+
+    # Update outdated screenshots.
+    update_outdated(users, cache['timestamp'], cache['default'], base_url,
+                    out_path)
+
+    # Save cache data.
+    cache = {
+        'timestamp': timestamp,
+        'default': cache['default'],
+        'users': users
+    }
+
+    try:
+        with open(f'{out_path}/cache.json', 'w') as file:
+            json.dump(cache, file, indent=4)
+    except Exception:
+        exit(-1)
+
+    # TODO Generate & zip website.
+    # TODO Send to remote server and unzip.
+
+
+if __name__ == '__main__':
+    update()
