@@ -74,7 +74,7 @@ def take_screenshot(url, path):
     # Spawn a new process to take the screenshot and obtain a hash.
     program = os.path.join(os.path.dirname(__file__), 'screenshot')
     process = subprocess.run(
-        [program, url, '-p', path, '-r', '240,180', '-k', '-h'],
+        [program, url, '-p', path, '-r', '400,300', '-h'],
         capture_output=True,
         encoding='UTF-8',
     )
