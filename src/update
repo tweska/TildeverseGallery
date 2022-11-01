@@ -5,13 +5,17 @@
 # Description:  Program used to update the gallery.
 
 
-import os
+import shutil
 from sys import stderr
 import subprocess
 import time
+import datetime
+import os
+
 import json
 
 import click
+from jinja2 import Template
 
 
 SCRIPT_TIMESTAMPS = 'remote/timestamps.sh'
@@ -106,11 +110,53 @@ def update_outdated(users, prev_update, default_hashes, base_url, out_path):
             os.remove(path[:-4] + '-thumbnail' + path[-4:])
 
 
+def generate_site(users, timestamp, template_path, out_path):
+    # Sort users into 27 bins.
+    users_bins = {k: [u for u in users if u['username'][0].upper() == k]
+                  for k in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}
+    users_bins['other'] = [u for u in users if not u['username'][0].isalpha()]
+
+    # Convert the timestamp into readable text.
+    update_time = datetime.datetime.fromtimestamp(timestamp) \
+        .strftime("%A %-d %B %Y %H:%M")
+
+    # Read template file.
+    try:
+        with open(f'{template_path}/template.html', 'r') as file:
+            template = Template(file.read())
+    except Exception:
+        print("Could not read template file!", file=stderr)
+        exit(-1)
+
+    # Render the template.
+    for key in users_bins.keys():
+        html = template.render(
+            update_time=update_time,
+            users=sorted(users_bins[key], key=lambda u: u['username'].upper())
+        )
+        filename = f"{out_path}/{key}.html"
+        try:
+            with open(filename, 'w') as file:
+                file.write(html)
+        except Exception:
+            print(f"Could not write to '{filename}'!", file=stderr)
+            exit(-1)
+
+    # Copy static files over to output directory.
+    shutil.copytree(
+        template_path,
+        out_path,
+        ignore=shutil.ignore_patterns('template.html'),
+        dirs_exist_ok=True,
+    )
+
+
 @click.command()
 @click.argument('host', type=str)
 @click.argument('base_url', type=str)
 @click.argument('out_path', type=str)
-def update(host, base_url, out_path):
+@click.argument('template_path', type=str)
+def update(host, base_url, out_path, template_path):
     # Get the current timestamp.
     timestamp = int(time.time())
 
@@ -152,8 +198,10 @@ def update(host, base_url, out_path):
     except Exception:
         exit(-1)
 
-    # TODO Generate & zip website.
-    # TODO Send to remote server and unzip.
+    # Generate website.
+    generate_site(users, timestamp, template_path, out_path)
+
+    # TODO Zip, send to remote server and unzip.
 
 
 if __name__ == '__main__':
