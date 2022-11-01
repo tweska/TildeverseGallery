@@ -5,13 +5,12 @@
 # Description:  Program used to update the gallery.
 
 
-import shutil
 from sys import stderr
 import subprocess
 import time
 import datetime
 import os
-
+import zipfile
 import json
 
 import click
@@ -128,27 +127,29 @@ def generate_site(users, timestamp, template_path, out_path):
         print("Could not read template file!", file=stderr)
         exit(-1)
 
-    # Render the template.
-    for key in users_bins.keys():
-        html = template.render(
-            update_time=update_time,
-            users=sorted(users_bins[key], key=lambda u: u['username'].upper())
-        )
-        filename = f"{out_path}/{key}.html"
-        try:
-            with open(filename, 'w') as file:
-                file.write(html)
-        except Exception:
-            print(f"Could not write to '{filename}'!", file=stderr)
-            exit(-1)
+    with zipfile.ZipFile(f'{out_path}/archive.zip', 'w') as z:
+        # Render the template.
+        for key in users_bins.keys():
+            html = template.render(
+                update_time=update_time,
+                users=sorted(users_bins[key], key=lambda u: u['username'].upper())
+            )
+            z.writestr(f'{key}.html', html)
 
-    # Copy static files over to output directory.
-    shutil.copytree(
-        template_path,
-        out_path,
-        ignore=shutil.ignore_patterns('template.html'),
-        dirs_exist_ok=True,
-    )
+        # Write static files to archive.
+        for dir, _, files in os.walk(template_path):
+            for file in files:
+                org_path = os.path.join(dir, file)
+                arc_path = os.path.relpath(org_path, template_path)
+                if arc_path != "template.html":
+                    z.write(org_path, arc_path)
+
+        # Write screenshots to archive.
+        for dir, _, files in os.walk(f'{out_path}/screenshots'):
+            for file in files:
+                org_path = os.path.join(dir, file)
+                arc_path = os.path.relpath(org_path, out_path)
+                z.write(org_path, arc_path)
 
 
 @click.command()
@@ -201,7 +202,7 @@ def update(host, base_url, out_path, template_path):
     # Generate website.
     generate_site(users, timestamp, template_path, out_path)
 
-    # TODO Zip, send to remote server and unzip.
+    # TODO Send to remote server and unzip.
 
 
 if __name__ == '__main__':
