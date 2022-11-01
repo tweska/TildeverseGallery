@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Tilde.Club Gallery</title>
+        <meta name="author" content="~tweska">
+        <link rel="stylesheet" href="static/style.css">
+    </head>
+    <body>
+        <h1>Tilde.Club Gallery</h1>
+        <p>Last update: {{ update_time }}</p>
+        <p><a href="index.html">index</a></p>
+        <p><a href="A.html">A</a> <a href="B.html">B</a> <a href="C.html">C</a> <a href="D.html">D</a> <a href="E.html">E</a> <a href="F.html">F</a> <a href="G.html">G</a> <a href="H.html">H</a> <a href="I.html">I</a> <a href="J.html">J</a> <a href="K.html">K</a> <a href="L.html">L</a> <a href="M.html">M</a> <a href="N.html">N</a> <a href="O.html">O</a> <a href="P.html">P</a> <a href="Q.html">Q</a> <a href="R.html">R</a> <a href="S.html">S</a> <a href="T.html">T</a> <a href="U.html">U</a> <a href="V.html">V</a> <a href="W.html">W</a> <a href="X.html">X</a> <a href="Y.html">Y</a> <a href="Z.html">Z</a> <a href="other.html">?</a></p>
+        <div class="container">{% for user in users %}{% if not user['default'] and not user['error'] %}
+            <div class="item">
+                <a href="/~{{ user['username'] }}/">
+                    <img src="screenshots/{{ user['username'] }}.png" alt="Screenshot of ~{{ user['username'] }}">
+                    ~{{ user['username'] }}
+                </a>
+            </div>{% endif %}{% endfor %}
+        </div>
+        <p><a href="A.html">A</a> <a href="B.html">B</a> <a href="C.html">C</a> <a href="D.html">D</a> <a href="E.html">E</a> <a href="F.html">F</a> <a href="G.html">G</a> <a href="H.html">H</a> <a href="I.html">I</a> <a href="J.html">J</a> <a href="K.html">K</a> <a href="L.html">L</a> <a href="M.html">M</a> <a href="N.html">N</a> <a href="O.html">O</a> <a href="P.html">P</a> <a href="Q.html">Q</a> <a href="R.html">R</a> <a href="S.html">S</a> <a href="T.html">T</a> <a href="U.html">U</a> <a href="V.html">V</a> <a href="W.html">W</a> <a href="X.html">X</a> <a href="Y.html">Y</a> <a href="Z.html">Z</a> <a href="other.html">?</a></p>
+        <p>Made by <a href="/~tweska/">~tweska</a></p>
+        <a href="/"><img src="static/tildeclub.gif"></a>
+    </body>
+</html>

@@ -1,0 +1,37 @@
+body {
+    text-align: center;
+    font-family: "courier new", monospace;
+    background-color: #111;
+    color: #fb5;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.item, .item {
+    width: 406px;
+    margin: 10px;
+}
+
+.item img {
+    width: 400px;
+    height: 300px;
+    border: #f70 solid 3px;
+}
+
+a {
+    text-decoration: none;
+    color: #f70;
+    font-weight: bold;
+}
+
+p.content {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: justify;
+}
