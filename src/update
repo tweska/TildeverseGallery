@@ -42,13 +42,13 @@ def get_users(host):
     ).stdout
 
     # Convert the output into a list of dictionaries.
-    return [
-        {'username': u, 'timestamp': int(t)} for (t, u) in [
-            striped_line.split(' ') for striped_line in [
-                line for line in reply.strip().split('\n')
-            ]
-        ]
-    ]
+    result = []
+    for (t, p) in [l.split(' ') for l in reply.strip().split('\n')]:
+        result.append({
+            'username': p.split('/')[2],
+            'timestamp': int(float(t)),
+        })
+    return result
 
 
 def merge_users(cached_users, new_users):
