@@ -18,6 +18,7 @@ from jinja2 import Template
 
 
 SCRIPT_TIMESTAMPS = 'remote/timestamps.sh'
+FILE_PERMISSIONS = 0o644
 
 
 def create_dir(path):
@@ -134,7 +135,9 @@ def generate_site(users, timestamp, template_path, out_path):
                 update_time=update_time,
                 users=sorted(users_bins[key], key=lambda u: u['username'].upper())
             )
-            z.writestr(f'{key}.html', html)
+            info = zipfile.ZipInfo(f'{key}.html')
+            info.external_attr = FILE_PERMISSIONS << 16
+            z.writestr(info, html)
 
         # Write static files to archive.
         for dir, _, files in os.walk(template_path):
@@ -142,6 +145,7 @@ def generate_site(users, timestamp, template_path, out_path):
                 org_path = os.path.join(dir, file)
                 arc_path = os.path.relpath(org_path, template_path)
                 if arc_path != "template.html":
+                    os.chmod(org_path, FILE_PERMISSIONS)
                     z.write(org_path, arc_path)
 
         # Write screenshots to archive.
@@ -149,6 +153,7 @@ def generate_site(users, timestamp, template_path, out_path):
             for file in files:
                 org_path = os.path.join(dir, file)
                 arc_path = os.path.relpath(org_path, out_path)
+                os.chmod(org_path, FILE_PERMISSIONS)
                 z.write(org_path, arc_path)
 
 
