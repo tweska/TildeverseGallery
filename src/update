@@ -8,7 +8,7 @@
 from sys import stderr
 import subprocess
 import time
-import datetime
+from datetime import datetime, timezone
 import os
 import zipfile
 import json
@@ -119,8 +119,8 @@ def generate_site(users, timestamp, template_path, out_path):
     users_bins['other'] = [u for u in users if not u['username'][0].isalpha()]
 
     # Convert the timestamp into readable text.
-    update_time = datetime.datetime.fromtimestamp(timestamp) \
-        .strftime("%A %-d %B %Y %H:%M")
+    update_time = datetime.fromtimestamp(timestamp, timezone.utc) \
+        .strftime("%A %-d %B %Y %H:%M (UTC)")
 
     # Read template file.
     try:
