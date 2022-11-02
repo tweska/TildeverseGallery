@@ -29,7 +29,7 @@ a {
     font-weight: bold;
 }
 
-p.content {
+.content {
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;

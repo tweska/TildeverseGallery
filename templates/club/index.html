@@ -8,12 +8,59 @@
         <link rel="stylesheet" href="static/style.css">
     </head>
     <body>
-        <h1>Tilde.Club Gallery</h1>
+        <h1>Welcome to the Tilde.Club Gallery!</h1>
         <p><a href="index.html">index</a></p>
         <p><a href="A.html">A</a> <a href="B.html">B</a> <a href="C.html">C</a> <a href="D.html">D</a> <a href="E.html">E</a> <a href="F.html">F</a> <a href="G.html">G</a> <a href="H.html">H</a> <a href="I.html">I</a> <a href="J.html">J</a> <a href="K.html">K</a> <a href="L.html">L</a> <a href="M.html">M</a> <a href="N.html">N</a> <a href="O.html">O</a> <a href="P.html">P</a> <a href="Q.html">Q</a> <a href="R.html">R</a> <a href="S.html">S</a> <a href="T.html">T</a> <a href="U.html">U</a> <a href="V.html">V</a> <a href="W.html">W</a> <a href="X.html">X</a> <a href="Y.html">Y</a> <a href="Z.html">Z</a> <a href="other.html">?</a></p>
-        <p class="content">
-            Welcome to the Tilde.Club Gallery!
-        </p>
+        <div class="content">
+            <p>
+                Hello there fellow internet surfer! You are about to explore
+                the tilde.club community using a revolutionary tool! The
+                Tilde.Club Gallery is a collection of over a 1000 screenshots
+                of tilde.club homepages.
+            </p>
+            <p>
+                All screenshots are ordered alphabetically, you click on of the
+                characters in the menu above to see all pages belonging to
+                users with names starting with the corresponding character.
+            </p>
+            <p>
+                Have fun exploring tilde.club! You can send a message
+                <code>/msg tweska</code> on <a href="http://tilde.chat/">IRC</a>
+                if you have question, run into an issue or want to give feedback.
+            </p>
+            <h2>Frequently asked questions</h2>
+            <h3>Why is my amazing homepage missing from the gallery?</h3>
+            <p>
+                Users that did not change their homepage are ignored by the
+                program, about half of all homepages are never changed and the
+                gallery gets boring really quickly if I include those pages.
+                If you did change your page, it is possible an error occured
+                while the scraper took a screenshot. Send <code>tweska</code> a
+                message on <a href="http://tilde.chat/">IRC</a> if you want to
+                be 100% sure.
+            </p>
+            <p>
+                Errors often occur if the page includes widgets or if your page
+                just keeps loading forever. I am not going to support this.
+            </p>
+            <h3>Why does my homepage not fit in the screenshot?</h3>
+            <p>
+                Because your homepage does not properly support a window size of
+                800 by 600 pixels.
+            </p>
+            <h3>Why does my screenshot not update after a modification?</h3>
+            <p>
+                If you change content other than the <code>index.html</code>
+                file of your homepage (like an image or stylesheet) the scraper
+                will not update your homepage. Just run:
+                <code>touch index.html</code> to update the modification time
+                of the file.
+            </p>
+            <h3>Can I see the code?</h3>
+            <p>
+                <a href="http://github.com/Tweska/TildeverseGallery/">Sure!</a>
+            </p>
+        </div>
         <p>Made by <a href="/~tweska/">~tweska</a></p>
         <a href="/"><img src="static/tildeclub.gif"></a>
     </body>
