@@ -18,6 +18,7 @@ from jinja2 import Template
 
 
 SCRIPT_TIMESTAMPS = 'remote/timestamps.sh'
+SCRIPT_UNPACK = 'remote/unpack.sh'
 FILE_PERMISSIONS = 0o644
 
 
@@ -129,7 +130,7 @@ def generate_site(users, timestamp, template_path, out_path):
         print("Could not read template file!", file=stderr)
         exit(-1)
 
-    with zipfile.ZipFile(f'{out_path}/archive.zip', 'w') as z:
+    with zipfile.ZipFile(f'{out_path}/gallery.zip', 'w') as z:
         # Render the template.
         for key in users_bins.keys():
             html = template.render(
@@ -158,12 +159,39 @@ def generate_site(users, timestamp, template_path, out_path):
                 z.write(org_path, arc_path)
 
 
+def upload_site(host, out_path):
+    # Upload archive to remote server.
+    proc = subprocess.run(
+        ['scp', f'{out_path}/gallery.zip', f'{host}:~/gallery.zip'],
+        capture_output=True,
+        encoding='UTF-8',
+    )
+    if proc.returncode != 0:
+        print("Failed to upload to remote server!", file=stderr)
+        exit(-1)
+
+    # Read the bash program from the file.
+    path = os.path.join(os.path.dirname(__file__), SCRIPT_UNPACK)
+    script = open(path, 'r').read()
+
+    # Execute the program in a remote shell.
+    proc = subprocess.run(
+        ['ssh', host, script],
+        capture_output=True,
+        encoding='UTF-8',
+    )
+    if proc.returncode != 0:
+        print("Failed to run command on remote server!", file=stderr)
+        exit(-1)
+
+
 @click.command()
 @click.argument('host', type=str)
 @click.argument('base_url', type=str)
 @click.argument('out_path', type=str)
 @click.argument('template_path', type=str)
-def update(host, base_url, out_path, template_path):
+@click.option('-u', '--upload', is_flag=True, default=False)
+def update(host, base_url, out_path, template_path, upload):
     # Get the current timestamp.
     timestamp = int(time.time())
 
@@ -208,7 +236,9 @@ def update(host, base_url, out_path, template_path):
     # Generate website.
     generate_site(users, timestamp, template_path, out_path)
 
-    # TODO Send to remote server and unzip.
+    # Send to remote server and unzip.
+    if upload:
+        upload_site(host, out_path)
 
 
 if __name__ == '__main__':
