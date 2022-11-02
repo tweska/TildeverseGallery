@@ -83,8 +83,9 @@ def take_screenshot(url, path):
 
 def update_outdated(users, prev_update, default_hashes, base_url, out_path):
     for user in users:
-        # Skip unchanged page.
-        if user['timestamp'] < prev_update:
+        # Skip unchanged page, except if fields are missing.
+        if all([k in user for k in ['timestamp', 'hash', 'default', 'error']])\
+                and user['timestamp'] < prev_update:
             continue
 
         print(f"Updating {user['username']} ...", file=stderr)
