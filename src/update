@@ -74,11 +74,15 @@ def merge_users(cached_users, new_users):
 def take_screenshot(url, path):
     # Spawn a new process to take the screenshot and obtain a hash.
     program = os.path.join(os.path.dirname(__file__), 'screenshot')
-    process = subprocess.run(
-        [program, url, '-p', path, '-r', '400,300', '-h'],
-        capture_output=True,
-        encoding='UTF-8',
-    )
+    try:
+        process = subprocess.run(
+            [program, url, '-p', path, '-r', '400,300', '-h'],
+            capture_output=True,
+            encoding='UTF-8',
+            timeout=30,
+        )
+    except Exception:
+        return (False, "")
     return (process.returncode == 0, process.stdout.strip())
 
 
