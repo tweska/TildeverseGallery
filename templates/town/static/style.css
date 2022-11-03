@@ -1,0 +1,30 @@
+body {
+    text-align: center;
+    background-color: pink;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.item {
+    width: 402px;
+    margin: 10px;
+}
+
+.item img {
+    width: 400px;
+    height: 300px;
+
+    border: #000 solid 1px;
+}
+
+p.content {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: justify;
+}
