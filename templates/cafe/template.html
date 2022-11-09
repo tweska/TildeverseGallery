@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Cafe Gallery</title>
+        <meta name="author" content="~tweska">
+        <link rel="stylesheet" href="static/style.css">
+    </head>
+    <body>
+        <h1>Welcome to the Tilde.Cafe Gallery!</h1>
+        <p>Last update: {{ update_time }}</p>
+        <p class="content">Hello and welcome to the Cafe Gallery! This tool was
+            first featured on
+            <a href="http://tilde.club/~tweska/gallery">tilde.club</a>
+            and after a rewrite, it's now also available here!
+        </p>
+        <p class="content">
+            Also checkout the
+            <a href="http://tilde.club/~tweska/gallery">Tilde.Club Gallery</a> and
+            <a href="http://tilde.town/~tweska">Tilde.Town Gallery</a>!
+        </p>
+        <p class="content">
+            You can message <code>/msg tweska</code> on <a href="https://tilde.chat/">IRC</a>
+            if you have problems or want to give feedback.
+        </p>
+        <div class="container">{% for user in users %}{% if not user['default'] and not user['error'] %}
+            <div class="item">
+                <a href="/~{{ user['username'] }}/">
+                    <img src="screenshots/{{ user['username'] }}.png" alt="Screenshot of ~{{ user['username'] }}">
+                    ~{{ user['username'] }}
+                </a>
+            </div>{% endif %}{% endfor %}
+        </div>
+        <p>Made by <a href="/~tweska/">~tweska</a></p>
+    </body>
+</html>

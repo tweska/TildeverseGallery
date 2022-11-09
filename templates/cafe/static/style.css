@@ -1,0 +1,29 @@
+body {
+    text-align: center;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.item {
+    width: 242px;
+    margin: 10px;
+}
+
+.item img {
+    width: 240px;
+    height: 180px;
+
+    border: #000 solid 1px;
+}
+
+p.content {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: justify;
+}
