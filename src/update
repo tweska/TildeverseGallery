@@ -116,11 +116,14 @@ def update_outdated(users, prev_update, default_hashes, base_url, out_path):
             os.remove(path[:-4] + '-thumbnail' + path[-4:])
 
 
-def generate_site(users, timestamp, template_path, out_path):
+def generate_site(users, timestamp, template_path, out_path, single=False):
     # Sort users into 27 bins.
-    users_bins = {k: [u for u in users if u['username'][0].upper() == k]
-                  for k in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}
-    users_bins['other'] = [u for u in users if not u['username'][0].isalpha()]
+    if not single:
+        users_bins = {k: [u for u in users if u['username'][0].upper() == k]
+                    for k in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}
+        users_bins['other'] = [u for u in users if not u['username'][0].isalpha()]
+    else:
+        users_bins = {'index': users}
 
     # Convert the timestamp into readable text.
     update_time = datetime.fromtimestamp(timestamp, timezone.utc) \
@@ -195,7 +198,8 @@ def upload_site(host, out_path):
 @click.argument('out_path', type=str)
 @click.argument('template_path', type=str)
 @click.option('-u', '--upload', is_flag=True, default=False)
-def update(host, base_url, out_path, template_path, upload):
+@click.option('-s', '--single', is_flag=True, default=False)
+def update(host, base_url, out_path, template_path, upload, single):
     # Get the current timestamp.
     timestamp = int(time.time())
 
@@ -238,7 +242,7 @@ def update(host, base_url, out_path, template_path, upload):
         exit(-1)
 
     # Generate website.
-    generate_site(users, timestamp, template_path, out_path)
+    generate_site(users, timestamp, template_path, out_path, single)
 
     # Send to remote server and unzip.
     if upload:
