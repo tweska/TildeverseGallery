@@ -37,6 +37,7 @@ async def __screenshot(url, path, windowsize, resizesize, keeporiginal,
 
     try:
         await page.goto(url)
+        await page.evaluateHandle('document.fonts.ready')
 
         if printhash:
             content = await page.content()
