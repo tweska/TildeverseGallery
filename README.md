@@ -17,6 +17,12 @@ apt install fonts-liberation
 pip install -r requirements.txt
 ```
 
+The update script assumes that a python virtual environment is used named `env`.
+Create a new virtual environment first using this command:
+```
+python3 -m venv env
+```
+
 ## Update pipeline
 The program follows the following update pipeline:
 ```

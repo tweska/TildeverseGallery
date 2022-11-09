@@ -1,6 +1,9 @@
 # Python
 __pycache__/
 *.py[cod]
+/env/
 
 # Output files
-*.zip
+/club/
+/cafe/
+/town/
