@@ -10,13 +10,13 @@ body {
 }
 
 .item {
-    width: 242px;
-    margin: 10px;
+    width: 402px;
+    margin: 10px 8px;
 }
 
 .item img {
-    width: 240px;
-    height: 180px;
+    width: 400px;
+    height: 300px;
 
     border: #000 solid 1px;
 }
