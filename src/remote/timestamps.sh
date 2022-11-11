@@ -1,1 +1,1 @@
-find /home/*/public_html -regex "/home/\_?[0-9a-zA-Z]*/public_html/index.html" -type f -name "index.html" -printf '%T@ %p\n' 2> /dev/null
+find -L /home/*/public_html/index.html -regex "/home/\_?[0-9a-zA-Z]*/public_html/index.html" -type f -printf '%T@ %p\n' 2> /dev/null
