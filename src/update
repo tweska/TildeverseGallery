@@ -93,7 +93,8 @@ def update_outdated(users, prev_update, default_hashes, base_url, out_path):
                 and user['timestamp'] < prev_update:
             continue
 
-        print(f"Updating {user['username']} ...", file=stderr)
+        print(f"Updating {user['username']} ... ", end="", file=stderr)
+        stderr.flush()
 
         # Take a (new) screenshot.
         url = f"{base_url}/~{user['username']}/"
@@ -104,6 +105,16 @@ def update_outdated(users, prev_update, default_hashes, base_url, out_path):
         user['hash'] = hash
         user['default'] = hash in default_hashes
         user['error'] = not success
+
+        # Write status message.
+        status = []
+        if (user['error']):
+            status.append("Error")
+        else:
+            status.append("Success")
+        if (user['default']):
+            status.append("Default")
+        print(f"{', '.join(status)}!", file=stderr)
 
         # Early return if not a default page.
         if not user['default']:
