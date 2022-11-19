@@ -76,10 +76,9 @@ def take_screenshot(url, path):
     program = os.path.join(os.path.dirname(__file__), 'screenshot')
     try:
         process = subprocess.run(
-            [program, url, '-p', path, '-r', '400,300', '-h'],
+            ['timeout', '-s', '9', '30', program, url, '-p', path, '-r', '400,300', '-h'],
             capture_output=True,
             encoding='UTF-8',
-            timeout=30,
         )
     except Exception:
         return (False, "")
