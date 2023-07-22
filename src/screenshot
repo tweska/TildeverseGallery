@@ -5,9 +5,9 @@
 # Description:  Simple program that takes a screenshot of a webpage using
 #               pyppeteer.
 
-
 import asyncio
 from sys import stderr
+from time import sleep
 import hashlib
 
 import click
@@ -43,6 +43,7 @@ async def __screenshot(url, path, windowsize, resizesize, keeporiginal,
             content = await page.content()
             print(hashlib.md5(content.encode('utf-8')).hexdigest())
 
+        sleep(2)  # Let javascript run for 2 seconds...
         await page.screenshot({
             'path': path,
             'fullPage': fullpage,
